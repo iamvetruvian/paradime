@@ -19,7 +19,7 @@ function createCards(movie) {
     const cardImage = document.createElement('img');
     cardImage.classList.add('card-img');
     cardImage.src = fullBackdropUrl;
-    const alttext = movie.title.slice(0, 20)+"...";
+    const alttext = movie.name ? movie.name.slice(0, 20)+"..." : (movie.original_title ? movie.original_title.slice(0, 20)+"..." : "Movie Poster");
     cardImage.alt = alttext;
     card.appendChild(cardImage);
     // cardContainer.appendChild(card);
