@@ -19,6 +19,22 @@ function createCards(movie) {
     const cardImage = document.createElement('img');
     cardImage.classList.add('card-img');
     cardImage.src = fullBackdropUrl;
+    cardImage.loading = 'lazy';
+    cardImage.decoding = 'async';
+    cardImage.onerror = function() {
+        let noResultsMessage = document.querySelector('.alert-warning');
+        if(noResultsMessage) {
+            noResultsMessage.remove();
+        }
+        noResultsMessage = document.createElement('p');
+
+        noResultsMessage.classList.add('alert');
+        noResultsMessage.classList.add('alert-warning');
+        noResultsMessage.style.margin = '20px';
+        noResultsMessage.textContent = 'Your connection prohibited images from loading. Please try changing your connection.';
+        document.querySelector ('.search-results-container').prepend(noResultsMessage);
+        return;
+    }
     const alttext = movie.name ? movie.name.slice(0, 20)+"..." : (movie.original_title ? movie.original_title.slice(0, 20)+"..." : "Movie Poster");
     cardImage.alt = alttext;
     card.appendChild(cardImage);
