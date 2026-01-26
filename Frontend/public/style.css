@@ -1,0 +1,74 @@
+body{
+    padding: 0px;
+    margin: 0px;
+    height: 100vh; 
+    background-color: black;
+    /* display: flex;
+    flex-direction: column; */
+}
+.hero{
+    /* border: solid 2px blue; */
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    position: relative;;
+    /* align-items: center;
+    justify-content: center; */
+    height: 90vh;
+    padding: 0px;
+    flex-direction: column;
+
+}
+
+
+.hero-bg{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    filter: brightness(60%);
+
+}
+.poster-info{
+    color: white;
+    margin-top: auto;
+    margin-bottom: 50px;
+    padding-inline: 50px;
+    text-align: left;
+    max-width: 600px;
+}
+
+.scroll-controls{
+    position: absolute;
+    top: 40%;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    width: 95%;
+    display: flex;
+    z-index: 10;
+    justify-content: space-between;
+    /* transform: translateY(-50%); */
+    /* border: 2px solid red;  */
+    pointer-events: none; /* Allow clicks to pass through */
+}
+.scroll-controls button{
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid white;
+    color: white;
+    font-size: 24px;
+    height: 70px;
+    width: 70px;
+    padding: 10px;
+    border-radius: 100px;
+    cursor: pointer;
+    pointer-events: all; /* Enable clicks on buttons */
+}
+.scroll-controls button:hover{
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+
+

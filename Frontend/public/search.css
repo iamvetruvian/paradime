@@ -1,0 +1,34 @@
+body{
+    background-color: black;
+}
+.search-container{
+    padding-inline: 120px;
+    padding-block: 60px;
+}
+.movie-container{
+    /*border: 2px solid red;*/
+    margin-bottom: 50px;
+}
+.movie-results{
+    /*border: 2px solid yellow;*/
+    height: fit-content;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.tv-results{
+    /*border: 2px solid yellow;*/
+    height: fit-content;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.tv-container{
+    /*border: 2px solid blue;*/
+    margin-bottom: 20px;
+}
+.backdrop-image{
+    height: 100px;
+    width: auto;
+}
