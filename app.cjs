@@ -3,11 +3,11 @@ const path = require("path");
 const app = express();
 const port = 5200;
 
-app.use(express.static("../Frontend/public"));
+app.use(express.static("./Frontend/public"));
 // console.log(path.resolve("../Frontend/public"))
 
 app.get("/search", (req, res) => {
-  const filePath = path.resolve("../search.html");
+  const filePath = path.resolve("./search.html");
   const { query } = req.query;
   if (!query) {
     res.redirect("/");
@@ -21,15 +21,15 @@ app.get("/search", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.sendFile(path.resolve("../index.html"));
+  res.sendFile(path.resolve("./index.html"));
 });
 
 app.get("/:type/:id", (req, res) => {
   const { type, id } = req.params;
   if (type == "movie") {
-    res.status(200).sendFile(path.resolve("../Frontend/movie.html"));
+    res.status(200).sendFile(path.resolve("./Frontend/movie.html"));
   } else if (type == "tv") {
-    res.status(200).sendFile(path.resolve("../Frontend/tv.html"));
+    res.status(200).sendFile(path.resolve("./Frontend/tv.html"));
   }
   res.end();
 });
@@ -38,10 +38,10 @@ app.get("/page", (req, res) => {
   const { type, id } = req.query;
   console.log(type, id);
   if (type == "movie") {
-    res.status(200).sendFile(path.resolve("../movie.html"));
+    res.status(200).sendFile(path.resolve("./movie.html"));
   }
   if (type === "tv") {
-    res.status(200).sendFile(path.resolve("../tv.html"));
+    res.status(200).sendFile(path.resolve("./tv.html"));
   }
 });
 
