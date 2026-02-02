@@ -3,6 +3,19 @@ const bearerToken =
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/original/";
 
+const searchBar = document.querySelector(".searchbar");
+searchBar.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    const value = searchBar.value;
+    if (value.length === 0) {
+      return;
+    } else {
+      window.location = `/search?query=${value}`;
+    }
+  }
+});
+
 /* -------------------- URL PARAM -------------------- */
 const params = new URLSearchParams(window.location.search);
 const tvId = params.get("id");
