@@ -20,8 +20,9 @@ async function fetchMovieDetails() {
       "Content-Type": "application/json",
     },
   });
-
-  return res.json();
+  data = res.json();
+  console.log(data);
+  return data;
 }
 
 /* -------------------- 9. Fetch Credits -------------------- */
@@ -51,7 +52,7 @@ function renderMovieDetails(movie) {
   /* Poster */
   document.querySelector(".poster-image").src =
     IMAGE_BASE_URL + movie.poster_path;
-  // console.log(IMAGE_BASE_URL + movie.poster_path)
+  console.log(IMAGE_BASE_URL + movie.poster_path);
 
   /* Overview */
   document.querySelector(".over-view p").textContent = movie.overview;
@@ -86,6 +87,7 @@ function renderCast(credits) {
 
   credits.cast.forEach((actor) => {
     if (!actor.profile_path) return;
+    // console.log(IMAGE_BASE_URL + actor.profile_path);
 
     const card = document.createElement("div");
     card.className = "cast-card";
@@ -114,8 +116,8 @@ function renderCast(credits) {
     const watchNow = document.querySelector(".watch-now-btn");
     const color = "#fc5b6e";
     watchNow.addEventListener("click", (event) => {
-      // window.location.href = `https://www.vidking.net/embed/movie/${movieId}?color=${color}&nextEpisode=true&episodeSelector=true`
-      window.location.href = `https://www.cineby.gd/movie/${movie.id}`;
+      window.location.href = `https://www.vidking.net/embed/movie/${movieId}?color=${color}&nextEpisode=true&episodeSelector=true`;
+      // window.location.href = `https://www.cineby.gd/movie/${movie.id}`;
     });
   } catch (err) {
     console.error("Failed to load movie data", err);
