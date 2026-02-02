@@ -76,7 +76,9 @@ async function fetchEpisodes(seasonNumber) {
         <div class="episode-synopsis">${ep.overview || "No overview available"}</div>
       </div>
     `;
-
+    card.addEventListener("click", () => {
+      window.location.href = `https://www.vidking.net/embed/tv/${tvId}/${seasonNumber}/${ep.episode_number}?nextEpisode=true&episodeSelector=true`;
+    });
     episodeList.appendChild(card);
   });
 }
