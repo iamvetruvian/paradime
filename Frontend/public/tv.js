@@ -68,7 +68,7 @@ async function fetchEpisodes(seasonNumber) {
       headers: {
         Authorization: `Bearer ${bearerToken}`,
       },
-    },
+    }
   );
 
   const data = await res.json();
@@ -121,8 +121,19 @@ async function fetchCast() {
       </div>
     `;
 
+    card.addEventListener("click", () => {
+      window.open(
+        `https://www.google.com/search?q=${encodeURIComponent(actor.name)}`,
+        "_blank"
+      );
+    });
+
     castContainer.appendChild(card);
   });
+
+  castContainer.style.border = "1px solid rgba(255, 255, 255, 0.2)";
+  castContainer.style.padding = "15px";
+  castContainer.style.borderRadius = "15px";
 }
 
 /* -------------------- EVENTS -------------------- */

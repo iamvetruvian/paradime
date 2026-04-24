@@ -91,6 +91,46 @@ function renderMovieDetails(movie) {
     img.height = 20;
     originContainer.appendChild(img);
   });
+
+  /* Additional Stats */
+  if (movie.release_date) {
+    document.querySelector(".release-date").innerHTML =
+      `<i class="fa-regular fa-calendar"></i> ${movie.release_date}`;
+  }
+  if (movie.runtime) {
+    document.querySelector(".runtime").innerHTML =
+      `<i class="fa-regular fa-clock"></i> ${movie.runtime} min`;
+  }
+  if (movie.vote_average) {
+    document.querySelector(".rating").innerHTML =
+      `<i class="fa-solid fa-star" style="color: gold;"></i> ${movie.vote_average.toFixed(1)}/10`;
+  }
+
+  /* Tagline */
+  if (movie.tagline) {
+    document.querySelector(".tagline").textContent = `"${movie.tagline}"`;
+  }
+
+  /* Production Companies */
+  const productionContainer = document.querySelector(".production-container");
+  if (productionContainer) {
+    productionContainer.innerHTML = "";
+    if (movie.production_companies) {
+      movie.production_companies.forEach((company) => {
+        if (!company.logo_path) return;
+        const img = document.createElement("img");
+        img.src = "https://image.tmdb.org/t/p/w300" + company.logo_path;
+        img.alt = company.name;
+        img.style.height = "40px";
+        img.style.objectFit = "contain";
+        img.style.backgroundColor = "rgba(255, 255, 255, 0.8)";
+        img.style.padding = "5px";
+        img.style.borderRadius = "5px";
+        img.title = company.name;
+        productionContainer.appendChild(img);
+      });
+    }
+  }
 }
 
 /* -------------------- Render Cast -------------------- */
@@ -113,8 +153,19 @@ function renderCast(credits) {
             </div>
         `;
 
+    card.addEventListener("click", () => {
+      window.open(
+        `https://www.google.com/search?q=${encodeURIComponent(actor.name)}`,
+        "_blank",
+      );
+    });
+
     container.appendChild(card);
   });
+
+  container.style.border = "1px solid rgba(255, 255, 255, 0.2)";
+  container.style.padding = "15px";
+  container.style.borderRadius = "15px";
 }
 
 /* -------------------- Init -------------------- */
