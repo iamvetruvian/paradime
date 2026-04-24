@@ -1,7 +1,7 @@
 body{
     background-color: black;
     height: 100vh;
-    widht: 100vw;
+    width: 100vw;
     display: flex;
     flex-direction: column;
 }
@@ -27,7 +27,8 @@ body{
     font-size: 7em;
 }
 .aside-poster-section{
-    height: 800px;
+    min-height: 800px;
+    height: fit-content;
     width: 30%;
     /*border: 2px solid blue;*/
     display: flex;
@@ -64,12 +65,13 @@ body{
 }
 .movie-information-container{
     /*border: 2px solid yellow;*/
-    height: 800px;
+    height: fit-content;
+    min-height: 800px;
     width: 70%;
     padding: 50px;
 }
 .lang-origin{
-    widht: inherit;
+    width: inherit;
     /*border: 2px solid red;*/
     height: fit-content;
     padding: 5px;
@@ -148,4 +150,42 @@ body{
     max-height: 400px;          /* choose based on your layout */
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+/* Responsive Layout */
+@media (max-width: 1024px) {
+    .bottom-part {
+        flex-direction: column;
+    }
+    .aside-poster-section {
+        width: 100%;
+        height: auto;
+        padding-top: 30px;
+        padding-bottom: 20px;
+    }
+    .movie-information-container {
+        width: 100%;
+        height: auto;
+        padding: 30px;
+    }
+}
+@media (max-width: 768px) {
+    .title {
+        font-size: 3em; 
+        bottom: 80px;
+    }
+    .movie-information-container {
+        padding: 15px;
+    }
+    .cast-card {
+        min-width: 100%;
+    }
+    .large-poster-container {
+        height: 250px;
+    }
+    .aside-poster-section .watch-now-btn {
+        width: 166px; 
+        font-size: 14px;
+        padding-block: 8px;
+    }
 }

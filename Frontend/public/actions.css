@@ -19,3 +19,12 @@
 /* Toast Notification */
 .toast-notification { position: fixed; bottom: 20px; right: -300px; background-color: #333; color: white; padding: 12px 20px; border-radius: 8px; border-left: 4px solid #4CAF50; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 3000; transition: right 0.4s ease-in-out; max-width: 300px; }
 .toast-notification.show { right: 20px; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .action-buttons-container {
+        right: auto;
+        left: 5%;
+        bottom: 15px;
+    }
+}

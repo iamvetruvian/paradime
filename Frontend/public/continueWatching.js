@@ -101,8 +101,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Construct DOM
             const card = document.createElement("div");
             card.className = "card";
-            card.style.width = "200px";
-            card.style.minWidth = "200px";
             
             card.onclick = () => {
                 window.location.href = playUrl;

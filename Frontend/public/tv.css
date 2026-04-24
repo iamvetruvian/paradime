@@ -1,7 +1,7 @@
 body {
     background-color: black;
     height: 100vh;
-    widht: 100vw;
+    width: 100vw;
     display: flex;
     flex-direction: column;
 }
@@ -67,7 +67,7 @@ body {
     /*padding: 50px;*/
 }
 .lang-origin {
-    widht: inherit;
+    width: inherit;
     /*border: 2px solid red;*/
     height: fit-content;
     padding: 5px;
@@ -259,4 +259,57 @@ body {
 }
 .section-title {
     margin-left: 2rem;
+}
+
+/* Responsive Layout */
+@media (max-width: 1024px) {
+    .bottom-part {
+        flex-direction: column;
+    }
+    .aside-poster-section {
+        width: 100%;
+        height: auto;
+        padding-top: 30px;
+        padding-bottom: 20px;
+    }
+    .tv-information-container {
+        width: 100%;
+        height: auto;
+        padding: 30px;
+    }
+    .episode-list-container, .episode-selector-container, .cast-card-container {
+        padding-inline: 2rem;
+    }
+}
+@media (max-width: 768px) {
+    .title {
+        font-size: 3em; 
+        bottom: 80px;
+    }
+    .episode-card {
+        flex-direction: column;
+    }
+    .episode-image {
+        width: 100%;
+        height: auto;
+    }
+    .episode-thumbnail {
+        width: 100%;
+        height: 100%;
+    }
+    .tv-information-container {
+        padding: 15px;
+    }
+    .cast-card {
+        min-width: 100%;
+    }
+    .large-poster-container {
+        height: 250px;
+    }
+    .episode-list-container, .episode-selector-container, .cast-card-container {
+        padding-inline: 1rem;
+    }
+    .section-title {
+        margin-left: 1rem;
+    }
 }

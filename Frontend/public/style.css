@@ -135,3 +135,31 @@ body {
     background-color: red;
     transition: width 0.3s ease;
 }
+
+/* Responsive Layout */
+@media (max-width: 1024px) {
+    .poster-info {
+        padding-inline: 30px;
+        max-width: 80%;
+    }
+}
+@media (max-width: 768px) {
+    .poster-info {
+        padding-inline: 20px;
+        max-width: 100%;
+        margin-bottom: 50px;
+    }
+    .poster-title {
+        font-size: 2.5em; 
+    }
+    .scroll-controls {
+        display: none !important; 
+    }
+    .hero-slider-dots {
+        margin-bottom: 5px;
+    }
+    .hero-slider-dots .dot {
+        width: 8px;
+        height: 8px;
+    }
+}

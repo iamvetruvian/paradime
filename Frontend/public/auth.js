@@ -64,3 +64,39 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Failed to check auth status", error);
     }
 });
+
+// Search Bar Animation Logic
+document.addEventListener("DOMContentLoaded", () => {
+    const navbar = document.querySelector(".navbar");
+    const searchForm = document.querySelector(".navbar form");
+    const searchInput = document.querySelector(".navbar form .searchbar");
+    const searchIcon = document.querySelector(".navbar form .fa-magnifying-glass");
+
+    if (navbar && searchForm && searchInput && searchIcon) {
+        searchIcon.addEventListener("click", (e) => {
+            if (window.innerWidth <= 768 && !navbar.classList.contains("search-expanded")) {
+                e.preventDefault(); 
+                navbar.classList.add("search-expanded");
+                searchInput.focus();
+            }
+        });
+
+        // Click anywhere in form expands it
+        searchForm.addEventListener("click", (e) => {
+            if (window.innerWidth <= 768 && !navbar.classList.contains("search-expanded")) {
+                e.preventDefault();
+                navbar.classList.add("search-expanded");
+                searchInput.focus();
+            }
+        });
+
+        // Shrink when focus is lost
+        searchInput.addEventListener("blur", () => {
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    navbar.classList.remove("search-expanded");
+                }, 150);
+            }
+        });
+    }
+});

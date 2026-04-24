@@ -49,3 +49,21 @@ body {
     background-color: red;
     margin-right: 10px;
 }
+
+/* Responsive padding adjustments for the grid */
+@media (max-width: 1024px) {
+    .search-container {
+        padding-inline: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        padding-inline: 15px;
+        padding-block: 30px;
+    }
+    .movie-results, .tv-results {
+        gap: 15px;
+        justify-content: flex-start;
+    }
+}
