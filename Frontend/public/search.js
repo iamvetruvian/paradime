@@ -20,7 +20,7 @@ searchBar.addEventListener("keydown", (event) => {
 const tmdbApiKey = "f29892040fcd94a66373b8170211ae55";
 const tmdbToken =
   "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmMjk4OTIwNDBmY2Q5NGE2NjM3M2I4MTcwMjExYWU1NSIsIm5iZiI6MTc2ODUwMzk1NS45MjQsInN1YiI6IjY5NjkzYTkzOGYxN2U1Y2Q1YWE4ODJjYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.wR22Ym0MqJmDhbQs_-fQXemdHTBr0JeIok07HcYSnzw";
-const baseImgUrl = "https://image.tmdb.org/t/p/original";
+const baseImgUrl = "https://image.tmdb.org/t/p/w342";
 //Endpoint format: https://api.themoviedb.org/3/search/multi?api_key=${tmdbApiKey}&query=All%20The%20Bright%20Places
 // Cast endpoint: https://api.themoviedb.org/3/movie/105214/credits?api_key=f29892040fcd94a66373b8170211ae55
 
@@ -30,18 +30,22 @@ const query = params.get("query");
 searchBar.value = query;
 
 const getData = async (query, apikey) => {
+  movieContainer.style.display = "block";
+  tvContainer.style.display = "block";
+  createSkeletonCards(6, movieResults);
+  createSkeletonCards(6, tvResults);
+
   const endpoint = `https://api.themoviedb.org/3/search/multi?api_key=${apikey}&query=${encodeURIComponent(query)}`;
   const response = await fetch(endpoint);
   const data = await response.json();
   const entertainmentArray = data.results;
   console.log(entertainmentArray);
-  movieContainer.style.display = "block";
-  tvContainer.style.display = "block";
-  movieResults.textContent = "";
-  tvResults.textContent = "";
+
   if (entertainmentArray.length === 0) {
     tvContainer.style.display = "none";
     movieContainer.style.display = "none";
+    movieResults.textContent = "";
+    tvResults.textContent = "";
     const errorMsg = document.createElement("h1");
     errorMsg.textContent = "Could not find anything like that";
     errorMsg.style.color = "white";
@@ -62,10 +66,8 @@ const getData = async (query, apikey) => {
   }
 
   console.log(tvArray);
-  createSkeletonCards(movieArray.length || 6, movieResults);
-  createSkeletonCards(tvArray.length || 6, tvResults);
-  await renderCards(movieArray, movieResults);
-  await renderCards(tvArray, tvResults);
+  renderCards(movieArray, movieResults);
+  renderCards(tvArray, tvResults);
 };
 
 // const createCards = (movie) => {
@@ -81,9 +83,8 @@ const getData = async (query, apikey) => {
 //   return card
 // }
 
-const renderCards = async (array, container) => {
-  const promises = array.map(createCards);
-  const cards = await Promise.all(promises);
+const renderCards = (array, container) => {
+  const cards = array.map((movie) => createCards(movie)).filter(Boolean);
   container.textContent = "";
   cards.forEach((card) => container.appendChild(card));
 };
@@ -98,28 +99,27 @@ const createSkeletonCards = (count, container) => {
 };
 
 const createCards = (movie) => {
-  return new Promise((resolve, reject) => {
-    const card = document.createElement("div");
-    card.classList.add("card");
-    card.type = movie.media_type;
-    card.name = movie.name || movie.original_name;
-    card.addEventListener("click", () => {
-      handleCardClick(movie.media_type, movie.id);
-    });
+  if (!movie.poster_path) return null;
 
-    const coverImg = new Image();
-    coverImg.src = `${baseImgUrl}${movie.poster_path}`;
-    coverImg.classList.add("card-img");
-    coverImg.decoding = "async";
-    coverImg.loading = "lazy";
-
-    coverImg.onload = () => {
-      card.appendChild(coverImg);
-      resolve(card);
-    };
-
-    coverImg.onerror = reject;
+  const card = document.createElement("div");
+  card.classList.add("card");
+  card.type = movie.media_type;
+  card.name = movie.name || movie.original_name;
+  card.addEventListener("click", () => {
+    handleCardClick(movie.media_type, movie.id);
   });
+
+  const coverImg = document.createElement("img");
+  coverImg.src = `${baseImgUrl}${movie.poster_path}`;
+  coverImg.classList.add("card-img");
+  coverImg.decoding = "async";
+  coverImg.loading = "lazy";
+  coverImg.onerror = function() {
+    this.src = "/assets/bg.jpg"; // Handle fallback silently on failure
+  };
+
+  card.appendChild(coverImg);
+  return card;
 };
 
 const handleCardClick = (type, tmdb) => {
