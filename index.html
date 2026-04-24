@@ -26,10 +26,41 @@
         />
         <link rel="stylesheet" href="/style.css" />
         <link rel="stylesheet" href="/utils.css" />
+        <script>
+            // Fetch trending movie immediately to start image download ASAP
+            const TMDB_API_KEY = "f29892040fcd94a66373b8170211ae55";
+            const heroFetchPromise = fetch(
+                `https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_API_KEY}`,
+            )
+                .then((res) => res.json())
+                .then((data) => {
+                    const items = data.results.slice(0, 5); // Get top 5 trending
+
+                    // Preload the first image aggressively
+                    if (items.length > 0) {
+                        const firstBgUrl = `https://image.tmdb.org/t/p/w1280${items[0].backdrop_path}`;
+                        const preload = document.createElement("link");
+                        preload.rel = "preload";
+                        preload.as = "image";
+                        preload.href = firstBgUrl;
+                        preload.fetchpriority = "high";
+                        document.head.appendChild(preload);
+                    }
+
+                    return items;
+                })
+                .catch((err) => console.error("Hero fetch error:", err));
+        </script>
     </head>
     <body>
         <section class="hero">
-            <img class="hero-bg" src="/assets/bg.jpg" alt="" />
+            <img
+                class="hero-bg"
+                id="hero-bg"
+                src="/assets/bg.jpg"
+                alt=""
+                fetchpriority="high"
+            />
             <div class="navbar glass">
                 <!-- <div class="container-fluid"> -->
                 <a class="navbar-brand" href="/">
@@ -60,26 +91,104 @@
             </div>
             <!-- <input class="search-input" type="text" placeholder="Search for movies or TV shows..."> -->
             <div class="poster-info">
-                <h1 class="poster-title">Stranger Things</h1>
-                <p class="poster-description">
-                    Set in 1980s Hawkins, Indiana, where the mysterious
-                    disappearance of young Will Byers uncovers a supernatural
-                    world, a secret government lab, and a psychokinetic girl
-                    named Eleven, leading his friends, family, and police chief
-                    Hopper into a battle against monsters from an alternate
-                    dimension called the Upside Down, blurring lines between
-                    reality and the paranormal
-                </p>
+                <h1 class="poster-title" id="hero-title">Loading...</h1>
+                <p class="poster-description" id="hero-desc"></p>
                 <div class="poster-buttons">
-                    <button class="btn btn-primary watch-now-btn">
+                    <button
+                        class="btn btn-primary watch-now-btn"
+                        id="hero-watch-btn"
+                    >
                         <i class="fa-solid fa-play"></i> Watch Now
                     </button>
-                    <button class="btn btn-secondary more-info-btn">
+                    <button
+                        class="btn btn-secondary more-info-btn"
+                        id="hero-info-btn"
+                    >
                         More Info
                     </button>
                 </div>
             </div>
+            <div class="hero-slider-dots" id="hero-dots"></div>
         </section>
+        <script>
+            // Apply the fetched data to the hero section once DOM is ready
+            heroFetchPromise.then((items) => {
+                if (!items || items.length === 0) return;
+
+                let currentIndex = 0;
+                let slideInterval;
+                const dotsContainer = document.getElementById("hero-dots");
+                const heroBg = document.getElementById("hero-bg");
+                const heroTitle = document.getElementById("hero-title");
+                const heroDesc = document.getElementById("hero-desc");
+                const watchBtn = document.getElementById("hero-watch-btn");
+                const infoBtn = document.getElementById("hero-info-btn");
+
+                // Create dots
+                items.forEach((_, index) => {
+                    const dot = document.createElement("div");
+                    dot.className = "dot" + (index === 0 ? " active" : "");
+                    dot.onclick = () => {
+                        currentIndex = index;
+                        updateSlide();
+                        resetInterval();
+                    };
+                    dotsContainer.appendChild(dot);
+                });
+
+                function updateSlide() {
+                    const item = items[currentIndex];
+                    const bgUrl = `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`;
+
+                    // Fade effect
+                    heroBg.style.opacity = 0.5;
+                    setTimeout(() => {
+                        heroBg.src = bgUrl;
+                        heroBg.style.opacity = 1;
+                    }, 200);
+
+                    heroTitle.textContent = item.title || item.name;
+
+                    let desc = item.overview || "";
+                    if (desc.length > 250)
+                        desc = desc.substring(0, 250) + "...";
+                    heroDesc.textContent = desc;
+
+                    const mediaType =
+                        item.media_type || (item.title ? "movie" : "tv");
+
+                    watchBtn.onclick = () => {
+                        if (mediaType === "tv") {
+                            window.location.href = `/play?type=${mediaType}&id=${item.id}&s=1&e=1`;
+                        } else {
+                            window.location.href = `/play?type=${mediaType}&id=${item.id}`;
+                        }
+                    };
+                    infoBtn.onclick = () =>
+                        (window.location.href = `/page?type=${mediaType}&id=${item.id}`);
+
+                    // Update dots
+                    Array.from(dotsContainer.children).forEach((dot, i) => {
+                        dot.className =
+                            "dot" + (i === currentIndex ? " active" : "");
+                    });
+                }
+
+                function nextSlide() {
+                    currentIndex = (currentIndex + 1) % items.length;
+                    updateSlide();
+                }
+
+                function resetInterval() {
+                    clearInterval(slideInterval);
+                    slideInterval = setInterval(nextSlide, 5000);
+                }
+
+                // Initialize first slide and interval
+                updateSlide();
+                slideInterval = setInterval(nextSlide, 5000);
+            });
+        </script>
         <section class="featured platter">
             <div class="platter-head">Top Movies</div>
             <div class="crousel">

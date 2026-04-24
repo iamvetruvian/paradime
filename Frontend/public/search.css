@@ -1,15 +1,15 @@
-body{
+body {
     background-color: black;
 }
-.search-container{
+.search-container {
     padding-inline: 120px;
     padding-block: 60px;
 }
-.movie-container{
+.movie-container {
     /*border: 2px solid red;*/
     margin-bottom: 50px;
 }
-.movie-results{
+.movie-results {
     /*border: 2px solid yellow;*/
     height: fit-content;
     display: flex;
@@ -17,18 +17,35 @@ body{
     gap: 20px;
 }
 
-.tv-results{
+.tv-results {
     /*border: 2px solid yellow;*/
     height: fit-content;
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
 }
-.tv-container{
+.tv-container {
     /*border: 2px solid blue;*/
     margin-bottom: 20px;
 }
-.backdrop-image{
+.backdrop-image {
     height: 100px;
     width: auto;
+}
+
+.platter-head {
+    display: flex;
+    align-items: center;
+    padding-inline: 0;
+    margin-bottom: 15px;
+}
+
+.platter-head::before {
+    content: "";
+    display: inline-block;
+    height: 28px;
+    width: 7px;
+    border-radius: 100px;
+    background-color: red;
+    margin-right: 10px;
 }

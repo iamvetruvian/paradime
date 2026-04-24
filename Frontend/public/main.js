@@ -2,9 +2,7 @@ crousels = document.querySelectorAll(".crousel");
 tmdbApiKey = "f29892040fcd94a66373b8170211ae55";
 platters = document.querySelectorAll(".platter");
 allCards = document.querySelectorAll(".card");
-document.querySelector(".watch-now-btn").addEventListener("click", () => {
-  window.location.href = "https://paradime.onrender.com/page?type=tv&id=66732";
-});
+
 // https://api.themoviedb.org/3/search/movie?api_key=f29892040fcd94a66373b8170211ae55&query=All%20The%20Bright%20Places
 
 const searchBar = document.querySelector(".searchbar");
