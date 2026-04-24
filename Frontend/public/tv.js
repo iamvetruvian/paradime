@@ -90,7 +90,7 @@ async function fetchEpisodes(seasonNumber) {
       </div>
     `;
     card.addEventListener("click", () => {
-      window.location.href = `https://www.vidking.net/embed/tv/${tvId}/${seasonNumber}/${ep.episode_number}?nextEpisode=true&episodeSelector=true`;
+      window.location.href = `/play?type=tv&id=${tvId}&s=${seasonNumber}&e=${ep.episode_number}`;
     });
     episodeList.appendChild(card);
   });

@@ -3,30 +3,106 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Paradigm | Movies and Tv Shows</title>
+        <title>Paradigm | Player</title>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
             rel="stylesheet"
-            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
-            crossorigin="anonymous"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
         />
         <link
             rel="shortcut icon"
             href="/assets/favicon.ico"
             type="image/x-icon"
         />
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-            integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-        />
-        <link rel="stylesheet" href="/style.css" />
-        <link rel="stylesheet" href="/utils.css" />
+        <style>
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                background-color: black;
+                overflow: hidden;
+            }
+            .top-bar {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                padding: 20px;
+                background: linear-gradient(
+                    to bottom,
+                    rgba(0, 0, 0, 0.8),
+                    transparent
+                );
+                z-index: 10;
+                display: flex;
+                pointer-events: none;
+            }
+            .back-btn {
+                color: white;
+                font-size: 1.5rem;
+                text-decoration: none;
+                cursor: pointer;
+                pointer-events: auto;
+                transition: color 0.2s ease;
+            }
+            .back-btn:hover {
+                color: #fc5b6e;
+            }
+            .mediaframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+            }
+            .error-msg {
+                color: white;
+                text-align: center;
+                margin-top: 20%;
+                font-family: sans-serif;
+            }
+        </style>
     </head>
     <body>
-        <iframe class="mediaframe"></iframe>
-        <script></script>
+        <div class="top-bar">
+            <a href="javascript:history.back()" class="back-btn">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </a>
+        </div>
+
+        <iframe
+            class="mediaframe"
+            allowfullscreen
+            allow="autoplay; fullscreen"
+        ></iframe>
+
+        <script>
+            const params = new URLSearchParams(window.location.search);
+            const type = params.get("type");
+            const id = params.get("id");
+            const season = params.get("s");
+            const episode = params.get("e");
+            const url = params.get("url");
+
+            let iframeSrc = "";
+
+            if (type === "movie" && id) {
+                iframeSrc = `https://www.vidking.net/embed/movie/${id}?color=#fc5b6e&nextEpisode=true&episodeSelector=true`;
+            } else if (type === "tv" && id && season && episode) {
+                iframeSrc = `https://www.vidking.net/embed/tv/${id}/${season}/${episode}?nextEpisode=true&episodeSelector=true`;
+            } else if (url) {
+                iframeSrc = decodeURIComponent(url);
+            }
+
+            if (iframeSrc) {
+                document.querySelector(".mediaframe").src = iframeSrc;
+            } else {
+                document.body.innerHTML =
+                    '<div class="top-bar"><a href="javascript:history.back()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back</a></div><h2 class="error-msg">Invalid Media Parameters. Return to the previous page.</h2>';
+            }
+        </script>
     </body>
 </html>

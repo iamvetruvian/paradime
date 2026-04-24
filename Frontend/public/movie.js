@@ -180,7 +180,7 @@ function renderCast(credits) {
     const watchNow = document.querySelector(".watch-now-btn");
     const color = "#fc5b6e";
     watchNow.addEventListener("click", (event) => {
-      window.location.href = `https://www.vidking.net/embed/movie/${movieId}?color=${color}&nextEpisode=true&episodeSelector=true`;
+      window.location.href = `/play?type=movie&id=${movieId}`;
       // window.location.href = `https://www.cineby.gd/movie/${movie.id}`;
     });
   } catch (err) {

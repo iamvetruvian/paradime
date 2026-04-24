@@ -45,6 +45,10 @@ app.get("/page", (req, res) => {
   }
 });
 
+app.get("/play", (req, res) => {
+  res.status(200).sendFile(path.resolve("./media.html"));
+});
+
 app.use((req, res) => {
   res.status(404).send("Resource not found");
 });
