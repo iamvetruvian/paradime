@@ -33,16 +33,32 @@ const castContainer = document.getElementById("cast-container");
 
 /* -------------------- FETCH TV DETAILS -------------------- */
 async function fetchTvDetails() {
-  const res = await fetch(`https://api.themoviedb.org/3/tv/${tvId}`, {
-    headers: {
-      Authorization: `Bearer ${bearerToken}`,
-    },
-  });
-
-  const data = await res.json();
+  let data;
+  if (window.tvDataPromise) {
+    data = await window.tvDataPromise;
+  } else {
+    const res = await fetch(`https://api.themoviedb.org/3/tv/${tvId}`, {
+      headers: {
+        Authorization: `Bearer ${bearerToken}`,
+      },
+    });
+    data = await res.json();
+  }
 
   titleEl.textContent = data.original_name;
-  backdropEl.src = IMAGE_BASE_URL + data.backdrop_path;
+
+  backdropEl.style.transition = "opacity 0.2s, filter 0.2s";
+  backdropEl.style.filter = "blur(10px)";
+  if (data.backdrop_path) backdropEl.src = "https://image.tmdb.org/t/p/w300" + data.backdrop_path;
+  
+  if (data.backdrop_path) {
+    const hdImg = new Image();
+    hdImg.src = "https://image.tmdb.org/t/p/original" + data.backdrop_path;
+    hdImg.onload = () => {
+        backdropEl.src = hdImg.src;
+        backdropEl.style.filter = "none";
+    };
+  }
 
   seasonSelect.innerHTML = "";
   data.seasons.forEach((season) => {
@@ -82,6 +98,8 @@ async function fetchEpisodes(seasonNumber) {
         <img
           class="episode-thumbnail"
           src="${ep.still_path ? IMAGE_BASE_URL + ep.still_path : ""}"
+          loading="lazy"
+          decoding="async"
         />
       </div>
       <div class="episode-details">
@@ -114,7 +132,7 @@ async function fetchCast() {
     card.innerHTML = `
       <img src="${
         actor.profile_path ? IMAGE_BASE_URL + actor.profile_path : ""
-      }" />
+      }" loading="lazy" decoding="async" />
       <div class="names">
       <div class="cast-name">${actor.name}</div>
       <div class="cast-character">${actor.character}</div>

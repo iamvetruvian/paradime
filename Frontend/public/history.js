@@ -118,6 +118,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 imgDOM.src = imgUrl || "/assets/bg.jpg";
                 imgDOM.alt = titleText;
                 imgDOM.className = "card-img";
+                imgDOM.loading = "lazy";
+                imgDOM.decoding = "async";
 
                 const overlayDOM = document.createElement("div");
                 overlayDOM.className = "card-overlay";

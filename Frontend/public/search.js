@@ -111,7 +111,7 @@ const createCards = (movie) => {
     coverImg.src = `${baseImgUrl}${movie.poster_path}`;
     coverImg.classList.add("card-img");
     coverImg.decoding = "async";
-    coverImg.loading = "eager";
+    coverImg.loading = "lazy";
 
     coverImg.onload = () => {
       card.appendChild(coverImg);

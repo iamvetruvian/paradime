@@ -115,6 +115,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             img.style.width = "100%";
             img.style.height = "100%";
             img.style.objectFit = "cover";
+            img.loading = "lazy";
+            img.decoding = "async";
 
             const overlay = document.createElement("div");
             overlay.className = "card-overlay";

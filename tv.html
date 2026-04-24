@@ -19,6 +19,35 @@
         <link rel="stylesheet" href="/tv.css" />
         <link rel="shortcut icon" href="/assets/favicon.ico" />
         <link rel="stylesheet" href="/actions.css" />
+        <script>
+            // Inline API optimization for faster image loading
+            const _bearer = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmMjk4OTIwNDBmY2Q5NGE2NjM3M2I4MTcwMjExYWU1NSIsIm5iZiI6MTc2ODUwMzk1NS45MjQsInN1YiI6IjY5NjkzYTkzOGYxN2U1Y2Q1YWE4ODJjYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.wR22Ym0MqJmDhbQs_-fQXemdHTBr0JeIok07HcYSnzw";
+            const _params = new URLSearchParams(window.location.search);
+            const _id = _params.get("id");
+            if (_id) {
+                window.tvDataPromise = fetch(`https://api.themoviedb.org/3/tv/${_id}`, {
+                    headers: { 'Authorization': `Bearer ${_bearer}` }
+                }).then(r => r.json()).then(data => {
+                    if (data.backdrop_path) {
+                        const preload = document.createElement("link");
+                        preload.rel = "preload";
+                        preload.as = "image";
+                        preload.href = `https://image.tmdb.org/t/p/original${data.backdrop_path}`;
+                        preload.fetchpriority = "high";
+                        document.head.appendChild(preload);
+                    }
+                    if (data.poster_path) {
+                        const preloadP = document.createElement("link");
+                        preloadP.rel = "preload";
+                        preloadP.as = "image";
+                        preloadP.href = `https://image.tmdb.org/t/p/original${data.poster_path}`;
+                        preloadP.fetchpriority = "high";
+                        document.head.appendChild(preloadP);
+                    }
+                    return data;
+                }).catch(e => console.error("Inline prefetch error:", e));
+            }
+        </script>
 </head>
 
     <body>
@@ -50,7 +79,7 @@
             <!-- TOP BANNER -->
             <div class="top-banner-section">
                 <div class="title" id="tv-title"></div>
-                <img class="backdrop-image" id="tv-backdrop" />
+                <img class="backdrop-image" id="tv-backdrop" fetchpriority="high" />
                 <div class="action-buttons-container">
                     <button class="btn btn-outline icon-btn" id="bookmark-btn" title="Bookmark">
                         <i class="fa-regular fa-bookmark"></i>

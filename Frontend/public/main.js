@@ -91,14 +91,8 @@ async function loadDynamicPlatters() {
       img.src = `${imgBaseUrl}${item.poster_path}`;
       img.alt = "";
       img.className = "card-img";
-
-      // Optimizaton: lazy load images that are initially off-screen,
-      // but prioritize the ones that are immediately visible
-      if (index > 4) {
-        img.loading = "lazy";
-      } else {
-        img.fetchPriority = "high";
-      }
+      img.loading = "lazy";
+      img.decoding = "async";
 
       card.appendChild(img);
       crousel.appendChild(card);

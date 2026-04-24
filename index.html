@@ -44,7 +44,7 @@
 
 <body>
     <section class="hero">
-        <img class="hero-bg" id="hero-bg" src="/assets/bg.jpg" alt="" fetchpriority="high" />
+        <img class="hero-bg" id="hero-bg" alt="" style="background-color: #111;" fetchpriority="high" />
         <div class="navbar glass">
             <!-- <div class="container-fluid"> -->
             <a class="navbar-brand" href="/">
@@ -107,13 +107,28 @@
 
             function updateSlide() {
                 const item = items[currentIndex];
-                const bgUrl = `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`;
+                const lowResUrl = `https://image.tmdb.org/t/p/w300${item.backdrop_path}`;
+                const highResUrl = `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`;
 
-                // Fade effect
+                // Fade/blur effect start
+                heroBg.style.transition = "opacity 0.2s, filter 0.2s";
                 heroBg.style.opacity = 0.5;
+                heroBg.style.filter = "blur(10px)";
+                
                 setTimeout(() => {
-                    heroBg.src = bgUrl;
+                    heroBg.src = lowResUrl;
                     heroBg.style.opacity = 1;
+                    
+                    // High res progressive load
+                    const img = new Image();
+                    img.src = highResUrl;
+                    img.onload = () => {
+                        // Check if we haven't changed slide while loading
+                        if (items[currentIndex] === item) {
+                            heroBg.src = highResUrl;
+                            heroBg.style.filter = "none";
+                        }
+                    };
                 }, 200);
 
                 heroTitle.textContent = item.title || item.name;

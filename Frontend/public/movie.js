@@ -27,6 +27,9 @@ if (!movieId) {
 
 /* -------------------- 2. Fetch Movie Details -------------------- */
 async function fetchMovieDetails() {
+  if (window.movieDataPromise) {
+    return await window.movieDataPromise;
+  }
   const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}`, {
     headers: {
       Authorization: `Bearer ${bearerToken}`,
@@ -59,13 +62,34 @@ function renderMovieDetails(movie) {
   document.querySelector(".title").textContent = movie.original_title;
 
   /* Backdrop */
-  document.querySelector(".backdrop-image").src =
-    IMAGE_BASE_URL + movie.backdrop_path;
+  const backdropEl = document.querySelector(".backdrop-image");
+  backdropEl.style.transition = "opacity 0.2s, filter 0.2s";
+  backdropEl.style.filter = "blur(10px)";
+  if (movie.backdrop_path) backdropEl.src = "https://image.tmdb.org/t/p/w300" + movie.backdrop_path;
+  
+  if (movie.backdrop_path) {
+    const hdImg = new Image();
+    hdImg.src = "https://image.tmdb.org/t/p/original" + movie.backdrop_path;
+    hdImg.onload = () => {
+      backdropEl.src = hdImg.src;
+      backdropEl.style.filter = "none";
+    };
+  }
 
   /* Poster */
-  document.querySelector(".poster-image").src =
-    IMAGE_BASE_URL + movie.poster_path;
-  console.log(IMAGE_BASE_URL + movie.poster_path);
+  const posterEl = document.querySelector(".poster-image");
+  posterEl.style.transition = "opacity 0.2s, filter 0.2s";
+  posterEl.style.filter = "blur(10px)";
+  if (movie.poster_path) posterEl.src = "https://image.tmdb.org/t/p/w300" + movie.poster_path;
+
+  if (movie.poster_path) {
+    const hdPoster = new Image();
+    hdPoster.src = "https://image.tmdb.org/t/p/original" + movie.poster_path;
+    hdPoster.onload = () => {
+        posterEl.src = hdPoster.src;
+        posterEl.style.filter = "none";
+    };
+  }
 
   /* Overview */
   document.querySelector(".over-view p").textContent = movie.overview;
@@ -127,6 +151,8 @@ function renderMovieDetails(movie) {
         img.style.padding = "5px";
         img.style.borderRadius = "5px";
         img.title = company.name;
+        img.loading = "lazy";
+        img.decoding = "async";
         productionContainer.appendChild(img);
       });
     }
@@ -146,7 +172,7 @@ function renderCast(credits) {
     card.className = "cast-card";
 
     card.innerHTML = `
-            <img src="${IMAGE_BASE_URL + actor.profile_path}">
+            <img src="${IMAGE_BASE_URL + actor.profile_path}" loading="lazy" decoding="async">
             <div class="names">
                 <div class="cast-name">${actor.name}</div>
                 <div class="character-name">${actor.character}</div>
