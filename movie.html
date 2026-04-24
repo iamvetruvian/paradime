@@ -22,7 +22,8 @@
             href="/assets/favicon.ico"
             type="image/x-icon"
         />
-    </head>
+        <link rel="stylesheet" href="/actions.css" />
+</head>
 
     <body>
         <div class="navbar glass">
@@ -49,6 +50,14 @@
             <div class="top-banner-section">
                 <div class="title"></div>
                 <img class="backdrop-image" />
+                <div class="action-buttons-container">
+                    <button class="btn btn-outline icon-btn" id="bookmark-btn" title="Bookmark">
+                        <i class="fa-regular fa-bookmark"></i>
+                    </button>
+                    <button class="btn btn-outline icon-btn" id="watchlist-btn" title="Add to Watchlist">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="bottom-part">
@@ -122,5 +131,35 @@
         </div>
 
         <script src="/movie.js"></script>
-    </body>
+        <script src="/auth.js" defer></script>
+
+        <!-- Watchlist Modal -->
+        <div id='watchlist-modal' class='modal-overlay'>
+            <div class='modal-content glass'>
+                <div class='modal-header'>
+                    <h3>Add to Watchlist</h3>
+                    <button class='close-modal-btn' id='close-modal-btn'><i class='fa-solid fa-xmark'></i></button>
+                </div>
+                <div class='modal-body'>
+                    <input type='text' id='watchlist-search' class='search-input' placeholder='Search watchlists...' style='width: 100%; margin-bottom: 15px; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white;'>
+                    <div class='watchlists-container' id='watchlists-container'>
+                        <!-- Mock watchlists -->
+                        <label class='watchlist-item'><input type='checkbox' value='Favorites'> Favorites</label>
+                        <label class='watchlist-item'><input type='checkbox' value='To Watch with Family'> To Watch with Family</label>
+                        <label class='watchlist-item'><input type='checkbox' value='Sci-Fi Binges'> Sci-Fi Binges</label>
+                        <label class='watchlist-item'><input type='checkbox' value='Action Movies'> Action Movies</label>
+                        <label class='watchlist-item'><input type='checkbox' value='Comedy Nights'> Comedy Nights</label>
+                    </div>
+                </div>
+                <div class='modal-footer'>
+                    <button class='btn btn-outline create-watchlist-btn'><i class='fa-solid fa-plus'></i> New Watchlist</button>
+                    <button class='btn btn-primary done-watchlist-btn' id='done-watchlist-btn'>Done</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id='toast-notification' class='toast-notification'></div>
+    <script src="/actions.js" defer></script>
+</body>
 </html>

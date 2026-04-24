@@ -103,6 +103,53 @@
                 document.body.innerHTML =
                     '<div class="top-bar"><a href="javascript:history.back()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back</a></div><h2 class="error-msg">Invalid Media Parameters. Return to the previous page.</h2>';
             }
+
+            window.addEventListener("message", function (event) {
+                try {
+                    const parsedData =
+                        typeof event.data === "string"
+                            ? JSON.parse(event.data)
+                            : event.data;
+                    if (parsedData && parsedData.type === "PLAYER_EVENT") {
+                        const {
+                            event: playerEvent,
+                            id: tmdbId,
+                            mediaType,
+                            season,
+                            episode,
+                            progress,
+                            currentTime,
+                            duration,
+                        } = parsedData.data;
+
+                        if (
+                            ["timeupdate", "pause", "ended"].includes(
+                                playerEvent,
+                            )
+                        ) {
+                            fetch("/api/history", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    tmdbId,
+                                    mediaType,
+                                    season,
+                                    episode,
+                                    progress,
+                                    currentTime,
+                                    duration,
+                                }),
+                            }).catch((err) =>
+                                console.error("Failed to sync history:", err),
+                            );
+                        }
+                    }
+                } catch (e) {
+                    // Ignore parsing errors for other message events
+                }
+            });
         </script>
     </body>
 </html>

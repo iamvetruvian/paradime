@@ -136,10 +136,88 @@ async function fetchCast() {
   castContainer.style.borderRadius = "15px";
 }
 
+/* -------------------- Inject Trailer Banner -------------------- */
+async function injectTrailerBanner() {
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/videos`, {
+      headers: { Authorization: `Bearer ${bearerToken}` },
+    });
+    const data = await res.json();
+    const trailer = data.results.find((v) => v.type === "Trailer" && v.site === "YouTube");
+    if (trailer) {
+      const banner = document.querySelector(".top-banner-section");
+      
+      if (getComputedStyle(banner).position === "static") {
+        banner.style.position = "relative";
+      }
+      banner.style.overflow = "hidden";
+
+      // Ensure text and buttons stay visible on top of iframe without overriding absolute positioning
+      const titleEl = banner.querySelector(".title");
+      const actionBtns = banner.querySelector(".action-buttons-container");
+      if (titleEl) { titleEl.style.zIndex = "10"; }
+      if (actionBtns) { actionBtns.style.zIndex = "10"; }
+
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&disablekb=1&modestbranding=1&rel=0&playsinline=1&enablejsapi=1&loop=1&playlist=${trailer.key}`;
+      iframe.style.position = "absolute";
+      iframe.style.top = "50%";
+      iframe.style.left = "50%";
+      iframe.style.transform = "translate(-50%, -50%)";
+      iframe.style.width = "100vw";
+      iframe.style.height = "56.25vw"; // 16:9 intrinsic ratio
+      iframe.style.minHeight = "100%";
+      iframe.style.minWidth = "177.77vh";
+      iframe.style.zIndex = "1"; 
+      iframe.style.pointerEvents = "none";
+      iframe.style.opacity = "0";
+      iframe.style.transition = "opacity 1.5s ease-in-out";
+      iframe.allow = "autoplay; encrypted-media";
+      iframe.frameBorder = "0";
+
+      iframe.onload = () => {
+        setTimeout(() => { iframe.style.opacity = "1"; }, 1500);
+      };
+
+      // Create Mute/Unmute floating button directly adhering to existing action-buttons
+      const muteBtn = document.createElement("button");
+      muteBtn.className = "btn btn-outline icon-btn";
+      muteBtn.title = "Unmute Trailer";
+      muteBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+
+      let isMuted = true;
+      muteBtn.onclick = () => {
+        if (isMuted) {
+          iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+          iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[100]}', '*');
+          muteBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+        } else {
+          iframe.contentWindow.postMessage('{"event":"command","func":"mute","args":""}', '*');
+          muteBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+        }
+        isMuted = !isMuted;
+      };
+
+      if (actionBtns) {
+        actionBtns.appendChild(muteBtn);
+      } else {
+        muteBtn.style.position = "absolute";
+        muteBtn.style.bottom = "80px";
+        muteBtn.style.right = "20px";
+        muteBtn.style.zIndex = "10";
+        banner.appendChild(muteBtn);
+      }
+      banner.appendChild(iframe);
+    }
+  } catch (err) {
+    console.error("Failed to inject trailer", err);
+  }
+}
+
 /* -------------------- EVENTS -------------------- */
 seasonSelect.addEventListener("change", (e) => {
   fetchEpisodes(e.target.value);
 });
 
 /* -------------------- INIT -------------------- */
-fetchTvDetails();
+fetchTvDetails().then(injectTrailerBanner);
