@@ -130,7 +130,7 @@ export default function HomePage() {
   const mediaType = currentHero?.media_type || (currentHero?.title ? 'movie' : 'tv');
 
   return (
-    <div style={{ background: 'black', minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }}>
       <section className="hero">
         {heroBg && (
           <img
