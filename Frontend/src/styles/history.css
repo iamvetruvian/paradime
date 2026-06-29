@@ -1,0 +1,53 @@
+/* Watch History Aesthetic */
+
+body {
+    background-color: #0c0c0c; 
+    color: white;
+}
+
+.history-page-container {
+    padding-inline: 4%;
+    padding-block: 20px;
+    margin-top: 30px;
+}
+
+.history-section {
+    margin-bottom: 50px;
+}
+
+.history-section-title {
+    color: #e5e5e5;
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.history-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: flex-start;
+}
+
+.history-grid .history-card-item {
+    position: relative;
+    width: 200px !important;
+    min-width: 200px !important;
+    height: 300px;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.history-grid .history-card-item:hover {
+    transform: scale(1.08);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
+    z-index: 5;
+}
+
+.history-grid .card-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 12px;
+}

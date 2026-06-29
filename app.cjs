@@ -182,57 +182,21 @@ app.get("/api/history", requireAuth, async (req, res) => {
   }
 });
 
-app.use(express.static("./Frontend/public"));
-
-app.get("/history", requireAuth, (req, res) => {
-  res.status(200).sendFile(path.resolve("./Frontend/public/history.html"));
-});
-
-app.get("/search", (req, res) => {
-  const filePath = path.resolve("./search.html");
-  const { query } = req.query;
-  if (!query) {
-    res.redirect("/");
-    return;
-  }
-  // console.log(query)
-  // console.log(filePath);
-  // console.log(require('fs').existsSync(filePath));
-  res.status(200).sendFile(filePath);
-  // res.end()
-});
-
-app.get("/", (req, res) => {
-  res.sendFile(path.resolve("./index.html"));
-});
-
-app.get("/:type/:id", (req, res) => {
-  const { type, id } = req.params;
-  if (type == "movie") {
-    res.status(200).sendFile(path.resolve("./Frontend/movie.html"));
-  } else if (type == "tv") {
-    res.status(200).sendFile(path.resolve("./Frontend/tv.html"));
-  }
-  res.end();
-});
-
+// Backward compat: redirect old /page?type=movie&id=X to /movie/X
 app.get("/page", (req, res) => {
   const { type, id } = req.query;
-  console.log(type, id);
-  if (type == "movie") {
-    res.status(200).sendFile(path.resolve("./movie.html"));
+  if (type && id) {
+    return res.redirect(`/${type}/${id}`);
   }
-  if (type === "tv") {
-    res.status(200).sendFile(path.resolve("./tv.html"));
-  }
+  res.redirect("/");
 });
 
-app.get("/play", (req, res) => {
-  res.status(200).sendFile(path.resolve("./media.html"));
-});
+// Serve the React SPA build
+app.use(express.static("./Frontend/dist"));
 
-app.use((req, res) => {
-  res.status(404).send("Resource not found");
+// Catch-all: let React Router handle all frontend routes
+app.get("/{*path}", (req, res) => {
+  res.sendFile(path.resolve("./Frontend/dist/index.html"));
 });
 
 app.listen(port, () => {
