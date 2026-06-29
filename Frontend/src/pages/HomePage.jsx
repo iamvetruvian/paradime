@@ -5,9 +5,16 @@ import Carousel from '../components/Carousel';
 import Footer from '../components/Footer';
 import useAuth from '../hooks/useAuth';
 
-const TMDB_KEY = 'f29892040fcd94a66373b8170211ae55';
+const KEY = 'f29892040fcd94a66373b8170211ae55';
 const BASE = 'https://api.themoviedb.org/3';
 const IMG_BASE = 'https://image.tmdb.org/t/p/w342';
+
+// Re-use whatever was pre-fired in index.html, or start fresh if missing
+// (e.g. during dev without the inline script)
+const trendingP    = window.__tmdb_trending   || fetch(`${BASE}/trending/all/day?api_key=${KEY}`).then(r => r.json());
+const topMoviesP   = window.__tmdb_top_movies  || fetch(`${BASE}/movie/top_rated?api_key=${KEY}`).then(r => r.json());
+const topTvP       = window.__tmdb_top_tv      || fetch(`${BASE}/tv/top_rated?api_key=${KEY}`).then(r => r.json());
+const classicsP    = window.__tmdb_classics    || fetch(`${BASE}/discover/movie?api_key=${KEY}&sort_by=vote_average.desc&vote_count.gte=5000&primary_release_date.lte=1995-01-01`).then(r => r.json());
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -16,43 +23,45 @@ export default function HomePage() {
   const [heroItems, setHeroItems] = useState([]);
   const [heroIndex, setHeroIndex] = useState(0);
   const [heroBg, setHeroBg] = useState('');
-  const [heroBgBlur, setHeroBgBlur] = useState(false);
+  const [heroBgBlurred, setHeroBgBlurred] = useState(false);
   const [platters, setPlatters] = useState({ topMovies: [], topTv: [], trending: [], classics: [] });
   const [continueWatching, setContinueWatching] = useState([]);
   const intervalRef = useRef(null);
 
+  // Resolve hero data — the promise is already in-flight, so this fires
+  // almost immediately when the component mounts.
   useEffect(() => {
-    fetch(`${BASE}/trending/all/day?api_key=${TMDB_KEY}`)
-      .then(r => r.json())
-      .then(data => {
-        const items = data.results.slice(0, 5);
-        setHeroItems(items);
-        if (items[0]?.backdrop_path) {
-          setHeroBg(`https://image.tmdb.org/t/p/w1280${items[0].backdrop_path}`);
-        }
-      })
-      .catch(console.error);
+    trendingP.then(data => {
+      const items = data.results?.slice(0, 5) || [];
+      setHeroItems(items);
+      if (items[0]?.backdrop_path) {
+        // Show low-res first, upgrade to high-res progressively
+        const low = `https://image.tmdb.org/t/p/w300${items[0].backdrop_path}`;
+        const high = `https://image.tmdb.org/t/p/w1280${items[0].backdrop_path}`;
+        setHeroBg(low);
+        const img = new Image();
+        img.src = high;
+        img.onload = () => setHeroBg(high);
+      }
+    }).catch(console.error);
+  }, []);
 
-    Promise.all([
-      fetch(`${BASE}/movie/top_rated?api_key=${TMDB_KEY}`).then(r => r.json()),
-      fetch(`${BASE}/tv/top_rated?api_key=${TMDB_KEY}`).then(r => r.json()),
-      fetch(`${BASE}/trending/all/day?api_key=${TMDB_KEY}`).then(r => r.json()),
-      fetch(`${BASE}/discover/movie?api_key=${TMDB_KEY}&sort_by=vote_average.desc&vote_count.gte=5000&primary_release_date.lte=1995-01-01`).then(r => r.json()),
-    ]).then(([tm, tt, tr, cl]) => {
+  // Resolve all carousel platters simultaneously
+  useEffect(() => {
+    Promise.all([topMoviesP, topTvP, trendingP, classicsP]).then(([tm, tt, tr, cl]) => {
       setPlatters({
-        topMovies: tm.results.map(i => ({ ...i, type: 'movie' })),
-        topTv: tt.results.map(i => ({ ...i, type: 'tv' })),
-        trending: tr.results.map(i => ({ ...i, type: i.media_type || 'movie' })),
-        classics: cl.results.map(i => ({ ...i, type: 'movie' })),
+        topMovies: tm.results?.map(i => ({ ...i, type: 'movie' })) || [],
+        topTv:     tt.results?.map(i => ({ ...i, type: 'tv' })) || [],
+        trending:  tr.results?.map(i => ({ ...i, type: i.media_type || 'movie' })) || [],
+        classics:  cl.results?.map(i => ({ ...i, type: 'movie' })) || [],
       });
     }).catch(console.error);
   }, []);
 
+  // Continue Watching (needs auth — runs only after user is known)
   useEffect(() => {
-    if (!user || !user.id) return;
-    Promise.all([
-      fetch('/api/history').then(r => r.json()),
-    ]).then(async ([history]) => {
+    if (!user?.id) return;
+    fetch('/api/history').then(r => r.json()).then(async history => {
       if (!history?.length) return;
       const uncompleted = history.filter(i => i.currentTime != null && i.duration != null && i.currentTime < i.duration);
       if (!uncompleted.length) return;
@@ -62,17 +71,17 @@ export default function HomePage() {
         try {
           let imgUrl = '', overlayTitle = '', playUrl = '';
           if (item.mediaType === 'tv') {
-            const [epData, showData] = await Promise.all([
-              fetch(`${BASE}/tv/${item.tmdbId}/season/${item.season}/episode/${item.episode}?api_key=${TMDB_KEY}`).then(r => r.json()),
-              fetch(`${BASE}/tv/${item.tmdbId}?api_key=${TMDB_KEY}`).then(r => r.json()),
+            const [ep, show] = await Promise.all([
+              fetch(`${BASE}/tv/${item.tmdbId}/season/${item.season}/episode/${item.episode}?api_key=${KEY}`).then(r => r.json()),
+              fetch(`${BASE}/tv/${item.tmdbId}?api_key=${KEY}`).then(r => r.json()),
             ]);
-            imgUrl = epData.still_path ? `${IMG_BASE}${epData.still_path}` : (showData.backdrop_path ? `https://image.tmdb.org/t/p/w780${showData.backdrop_path}` : `${IMG_BASE}${showData.poster_path}`);
-            overlayTitle = `${showData.name || 'Unknown'}: S${item.season}-E${item.episode}`;
+            imgUrl = ep.still_path ? `${IMG_BASE}${ep.still_path}` : (show.backdrop_path ? `https://image.tmdb.org/t/p/w780${show.backdrop_path}` : `${IMG_BASE}${show.poster_path}`);
+            overlayTitle = `${show.name || 'Unknown'}: S${item.season}-E${item.episode}`;
             playUrl = `/play?type=tv&id=${item.tmdbId}&s=${item.season}&e=${item.episode}`;
           } else {
-            const movieData = await fetch(`${BASE}/movie/${item.tmdbId}?api_key=${TMDB_KEY}`).then(r => r.json());
-            imgUrl = movieData.backdrop_path ? `https://image.tmdb.org/t/p/w780${movieData.backdrop_path}` : `${IMG_BASE}${movieData.poster_path}`;
-            overlayTitle = movieData.title || 'Unknown Movie';
+            const movie = await fetch(`${BASE}/movie/${item.tmdbId}?api_key=${KEY}`).then(r => r.json());
+            imgUrl = movie.backdrop_path ? `https://image.tmdb.org/t/p/w780${movie.backdrop_path}` : `${IMG_BASE}${movie.poster_path}`;
+            overlayTitle = movie.title || 'Unknown Movie';
             playUrl = `/play?type=movie&id=${item.tmdbId}`;
           }
           items.push({ id: item.tmdbId, type: item.mediaType, imgUrl, overlayTitle, playUrl, progress: Math.min((item.currentTime / item.duration) * 100, 100) });
@@ -82,6 +91,7 @@ export default function HomePage() {
     }).catch(console.error);
   }, [user]);
 
+  // Auto-advance hero slider
   useEffect(() => {
     if (!heroItems.length) return;
     intervalRef.current = setInterval(() => {
@@ -90,26 +100,25 @@ export default function HomePage() {
     return () => clearInterval(intervalRef.current);
   }, [heroItems]);
 
+  // Update hero bg with progressive loading on slide change
   useEffect(() => {
-    if (!heroItems.length) return;
+    if (!heroItems.length || heroIndex === 0) return; // index 0 handled on first load above
     const item = heroItems[heroIndex];
     if (!item?.backdrop_path) return;
-    setHeroBgBlur(true);
-    const low = `https://image.tmdb.org/t/p/w300${item.backdrop_path}`;
-    const high = `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`;
+
+    setHeroBgBlurred(true);
     setTimeout(() => {
+      const low = `https://image.tmdb.org/t/p/w300${item.backdrop_path}`;
+      const high = `https://image.tmdb.org/t/p/w1280${item.backdrop_path}`;
       setHeroBg(low);
-      setHeroBgBlur(false);
+      setHeroBgBlurred(false);
       const img = new Image();
       img.src = high;
       img.onload = () => setHeroBg(high);
     }, 200);
-  }, [heroIndex, heroItems]);
+  }, [heroIndex]);
 
-  const currentHero = heroItems[heroIndex];
-  const mediaType = currentHero?.media_type || (currentHero?.title ? 'movie' : 'tv');
-
-  const goToHero = (idx) => {
+  const goToSlide = (idx) => {
     setHeroIndex(idx);
     clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
@@ -117,39 +126,49 @@ export default function HomePage() {
     }, 5000);
   };
 
+  const currentHero = heroItems[heroIndex];
+  const mediaType = currentHero?.media_type || (currentHero?.title ? 'movie' : 'tv');
+
   return (
     <div style={{ background: 'black', minHeight: '100vh' }}>
       <section className="hero">
-        <img
-          className="hero-bg"
-          src={heroBg}
-          alt=""
-          fetchpriority="high"
-          style={{ filter: heroBgBlur ? 'blur(10px) brightness(60%)' : 'brightness(60%)', transition: 'opacity 0.3s, filter 0.3s' }}
-        />
+        {heroBg && (
+          <img
+            className="hero-bg"
+            src={heroBg}
+            alt=""
+            fetchPriority="high"
+            style={{
+              filter: heroBgBlurred ? 'blur(10px) brightness(60%)' : 'brightness(60%)',
+              transition: 'filter 0.3s ease',
+            }}
+          />
+        )}
         <Navbar />
         <div className="poster-info">
-          <h1 className="poster-title" id="hero-title">
-            {currentHero?.title || currentHero?.name || 'Loading...'}
+          <h1 className="poster-title">
+            {currentHero ? (currentHero.title || currentHero.name) : 'Loading...'}
           </h1>
           <p className="poster-description">
-            {currentHero?.overview?.length > 250
-              ? currentHero.overview.substring(0, 250) + '...'
-              : currentHero?.overview || ''}
+            {(() => {
+              const ov = currentHero?.overview || '';
+              return ov.length > 250 ? ov.substring(0, 250) + '...' : ov;
+            })()}
           </p>
           <div className="poster-buttons">
             <button
               className="btn btn-primary watch-now-btn"
               onClick={() => {
+                if (!currentHero) return;
                 if (mediaType === 'tv') navigate(`/play?type=tv&id=${currentHero.id}&s=1&e=1`);
-                else navigate(`/play?type=movie&id=${currentHero?.id}`);
+                else navigate(`/play?type=movie&id=${currentHero.id}`);
               }}
             >
               <i className="fa-solid fa-play" /> Watch Now
             </button>
             <button
               className="btn btn-secondary more-info-btn"
-              onClick={() => navigate(`/${mediaType}/${currentHero?.id}`)}
+              onClick={() => currentHero && navigate(`/${mediaType}/${currentHero.id}`)}
             >
               More Info
             </button>
@@ -157,11 +176,7 @@ export default function HomePage() {
         </div>
         <div className="hero-slider-dots">
           {heroItems.map((_, i) => (
-            <div
-              key={i}
-              className={`dot${i === heroIndex ? ' active' : ''}`}
-              onClick={() => goToHero(i)}
-            />
+            <div key={i} className={`dot${i === heroIndex ? ' active' : ''}`} onClick={() => goToSlide(i)} />
           ))}
         </div>
       </section>
@@ -169,10 +184,10 @@ export default function HomePage() {
       {continueWatching.length > 0 && (
         <Carousel title="Continue Watching" items={continueWatching} showOverlay />
       )}
-      <Carousel title="Top Movies" items={platters.topMovies} />
+      <Carousel title="Top Movies"   items={platters.topMovies} />
       <Carousel title="Top TV Shows" items={platters.topTv} />
       <Carousel title="Trending Now" items={platters.trending} />
-      <Carousel title="Classics" items={platters.classics} />
+      <Carousel title="Classics"     items={platters.classics} />
 
       <hr style={{ color: 'white' }} />
       <Footer />

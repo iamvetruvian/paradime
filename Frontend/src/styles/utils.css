@@ -26,11 +26,10 @@
     color: white;
     font-size: 24px;
     font-weight: 500;
-    /* margin-bottom: 20px; */
-    /* border: 2px solid orange; */
     padding-inline: 30px;
     padding-block: 10px;
-    z-index: -1;
+    position: relative;
+    z-index: 1;
 }
 .crousel{
     display: flex;

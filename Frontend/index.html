@@ -18,6 +18,33 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <!-- Fire all TMDB fetches immediately — before the JS bundle even loads -->
+    <script>
+      var _k = 'f29892040fcd94a66373b8170211ae55';
+      var _b = 'https://api.themoviedb.org/3';
+      window.__tmdb_trending  = fetch(_b + '/trending/all/day?api_key=' + _k).then(function(r){ return r.json(); });
+      window.__tmdb_top_movies = fetch(_b + '/movie/top_rated?api_key=' + _k).then(function(r){ return r.json(); });
+      window.__tmdb_top_tv    = fetch(_b + '/tv/top_rated?api_key=' + _k).then(function(r){ return r.json(); });
+      window.__tmdb_classics  = fetch(_b + '/discover/movie?api_key=' + _k + '&sort_by=vote_average.desc&vote_count.gte=5000&primary_release_date.lte=1995-01-01').then(function(r){ return r.json(); });
+
+      // As soon as we know the first hero image URL, inject a <link rel="preload"> so
+      // the browser starts downloading it in parallel with the JS bundle.
+      window.__tmdb_trending.then(function(data) {
+        var item = data && data.results && data.results[0];
+        if (item && item.backdrop_path) {
+          var lo = document.createElement('link');
+          lo.rel = 'preload'; lo.as = 'image';
+          lo.href = 'https://image.tmdb.org/t/p/w300' + item.backdrop_path;
+          document.head.appendChild(lo);
+
+          var hi = document.createElement('link');
+          hi.rel = 'preload'; hi.as = 'image';
+          hi.href = 'https://image.tmdb.org/t/p/w1280' + item.backdrop_path;
+          hi.setAttribute('fetchpriority', 'high');
+          document.head.appendChild(hi);
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
